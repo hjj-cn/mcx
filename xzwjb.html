@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC小镇 · 购物系统 + 后台管理</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            color: #1a1a1a;
+        }
+        .container { max-width: 1300px; margin: 0 auto; }
+        .mode-switch { text-align: right; margin-bottom: 15px; }
+        .mode-switch button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mode-switch button:hover { background: #1a252f; }
+        .front-page { display: block; }
+        .back-page { display: none; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        .announcement-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 12px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            color: #856404;
+            display: none;
+        }
+        .category {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 20px 20px 10px 20px;
+            margin-bottom: 30px;
+        }
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .item-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #e9ecef;
+            transition: 0.2s;
+        }
+        .item-card:hover { background: #eef2f7; border-color: #b0c4de; }
+        .item-info { flex: 2 1 140px; }
+        .item-name { font-weight: 500; font-size: 1rem; color: #1e293b; }
+        .item-price {
+            font-size: 0.9rem;
+            color: #2c3e50;
+            background: #e9ecef;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+        .item-price .unit { color: #6c757d; font-size: 0.75rem; }
+        .item-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .item-control input[type="number"] {
+            width: 60px;
+            padding: 6px 4px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.95rem;
+            background: white;
+        }
+        .item-control input[type="number"]:focus {
+            outline: 2px solid #3498db;
+            border-color: transparent;
+        }
+        .btn-add {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-add:hover { background: #2176bd; transform: scale(1.02); }
+        .btn-add:active { transform: scale(0.95); }
+        .cart-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .cart-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .cart-table-wrap { overflow-x: auto; margin-top: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        th { background: #f1f3f5; text-align: left; padding: 10px 8px; font-weight: 600; }
+        td { padding: 10px 8px; border-bottom: 1px solid #e9ecef; vertical-align: middle; }
+        .btn-remove {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .btn-remove:hover { background: #c0392b; }
+        .cart-total {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .total-numbers { display: flex; gap: 30px; }
+        .total-numbers span {
+            background: white;
+            padding: 4px 16px;
+            border-radius: 30px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .checkout-area {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+            background: #f8f9fa;
+            padding: 16px 20px;
+            border-radius: 12px;
+        }
+        .checkout-area label { font-weight: 500; margin-right: 4px; }
+        .checkout-area input[type="text"] {
+            flex: 1 1 150px;
+            padding: 8px 14px;
+            border: 1px solid #ced4da;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            min-width: 120px;
+        }
+        .checkout-area input[type="text"]:disabled {
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+        .btn-confirm-id {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-confirm-id:hover { background: #732d91; }
+        .btn-confirm-id:disabled { background: #b0a0b0; cursor: not-allowed; }
+        .id-status {
+            font-size: 0.85rem;
+            color: #27ae60;
+            font-weight: 500;
+            display: none;
+        }
+        .btn-submit {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 36px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 8px rgba(39,174,96,0.3);
+            margin-left: auto;
+        }
+        .btn-submit:hover:not(:disabled) { background: #1e8449; transform: scale(1.02); }
+        .btn-submit:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        .empty-cart { text-align: center; color: #95a5a6; padding: 30px 0; font-size: 1.1rem; }
+
+        /* 后台 */
+        .admin-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 6px solid #e67e22;
+        }
+        .admin-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e67e22;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .admin-title .admin-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+        .admin-title button {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .admin-title button:hover { background: #d35400; }
+        .admin-title button.danger { background: #e74c3c; }
+        .admin-title button.danger:hover { background: #c0392b; }
+        .announcement-area {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+        .announcement-area label { font-weight: 600; margin-right: 10px; }
+        .announcement-area input[type="text"] {
+            flex: 1;
+            padding: 8px 14px;
+            border: 1px solid #ced4da;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            min-width: 200px;
+        }
+        .announcement-area .announce-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .announcement-area .current-announce {
+            margin-top: 8px;
+            color: #2c3e50;
+            font-size: 0.95rem;
+            background: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            display: inline-block;
+            border: 1px solid #ddd;
+        }
+        .order-list { margin-top: 12px; }
+        .order-item {
+            background: #fdfaf7;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            border: 1px solid #f0e6d8;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-info { flex: 1; }
+        .order-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+        .order-details {
+            color: #34495e;
+            font-size: 0.95rem;
+            background: #fcf8f3;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+        .order-time { color: #7f8c8d; font-weight: 400; font-size: 0.8rem; }
+        .order-status {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 20px;
+            background: #e9ecef;
+        }
+        .order-status.completed { background: #d4edda; color: #155724; }
+        .order-status.pending { background: #fff3cd; color: #856404; }
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        .order-actions button {
+            color: white;
+            border: none;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .order-actions .btn-complete { background: #28a745; }
+        .order-actions .btn-complete:hover { background: #218838; }
+        .order-actions .btn-delete { background: #e74c3c; }
+        .order-actions .btn-delete:hover { background: #c0392b; }
+        .no-orders { text-align: center; color: #95a5a6; padding: 20px 0; }
+
+        .login-box {
+            max-width: 400px;
+            margin: 60px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-box h2 { margin-bottom: 20px; color: #2c3e50; }
+        .login-box input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 30px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        .login-box button {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .login-box button:hover { background: #d35400; }
+        .login-error { color: #e74c3c; margin-top: 10px; font-size: 0.9rem; }
+
+        .storage-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .import-export-area {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .import-export-area textarea {
+            flex: 1 1 100%;
+            height: 80px;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 90%;
+            padding: 24px 28px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .modal-box .modal-message {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .modal-box .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .modal-box .modal-buttons button {
+            padding: 8px 28px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 80px;
+        }
+        .modal-box .modal-buttons .btn-confirm { background: #27ae60; color: white; }
+        .modal-box .modal-buttons .btn-confirm:hover { background: #1e8449; }
+        .modal-box .modal-buttons .btn-cancel { background: #95a5a6; color: white; }
+        .modal-box .modal-buttons .btn-cancel:hover { background: #7f8c8d; }
+        .modal-box .modal-buttons .btn-ok { background: #3498db; color: white; }
+        .modal-box .modal-buttons .btn-ok:hover { background: #2176bd; }
+
+        @media (max-width: 600px) {
+            .item-grid { grid-template-columns: 1fr; }
+            .cart-total { flex-direction: column; align-items: stretch; gap: 10px; }
+            .total-numbers { justify-content: space-around; }
+            .checkout-area { flex-direction: column; align-items: stretch; }
+            .checkout-area .btn-submit { margin-left: 0; }
+            .order-header { flex-direction: column; gap: 4px; }
+            .admin-title { flex-direction: column; align-items: stretch; gap: 10px; }
+            .order-item { flex-direction: column; align-items: stretch; }
+            .order-actions { margin-left: 0; margin-top: 8px; }
+            .announcement-area .announce-row { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="modalOverlay" class="modal-overlay">
+    <div class="modal-box">
+        <div id="modalMessage" class="modal-message"></div>
+        <div id="modalButtons" class="modal-buttons"></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="mode-switch">
+        <button id="switchModeBtn">🔐 后台管理</button>
+    </div>
+
+    <!-- 前台 -->
+    <div id="frontPage" class="front-page">
+        <h1>🏪 MC小镇 · 购物中心</h1>
+        <div id="announcementBanner" class="announcement-banner"></div>
+        <p class="subtitle">请先确认游戏ID（1~10位中文/字母/数字/下划线），锁定后方可选购</p>
+        <div id="storageWarning" class="storage-warning">⚠️ 本地存储不可用，订单将保存在内存中，刷新页面会丢失。建议导出备份。</div>
+        <div id="categoriesContainer"></div>
+        <div class="cart-section">
+            <div class="cart-title">
+                <span>🛒 购物车</span>
+                <span style="font-size:0.9rem;font-weight:400;color:#6c757d;">
+                    <span id="itemCount">0</span> 件商品
+                </span>
+            </div>
+            <div id="cartContent"><div class="empty-cart">购物车是空的，快去选购吧！</div></div>
+            <div class="cart-total" id="cartTotal" style="display:none;">
+                <div class="total-numbers">
+                    <span>📦 总数量：<strong id="totalQuantity">0</strong></span>
+                    <span>💰 总价：<strong id="totalPrice">0</strong></span>
+                </div>
+            </div>
+            <div class="checkout-area">
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:2;">
+                    <label for="playerId">🎮 游戏ID：</label>
+                    <input type="text" id="playerId" placeholder="例：史蒂夫_123" maxlength="10" autocomplete="off">
+                    <button id="confirmIdBtn" class="btn-confirm-id">确认ID</button>
+                    <span id="idLockStatus" class="id-status">✅ 已锁定</span>
+                </div>
+                <button class="btn-submit" id="submitOrder" disabled>📝 提交订单</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 后台 -->
+    <div id="backPage" class="back-page">
+        <div id="loginArea" class="login-box">
+            <h2>🔑 管理员登录</h2>
+            <input type="password" id="adminPassword" placeholder="请输入后台密码" autofocus>
+            <button id="loginBtn">登录</button>
+            <div id="loginError" class="login-error"></div>
+        </div>
+        <div id="adminContent" style="display:none;">
+            <div class="admin-section">
+                <div class="admin-title">
+                    <span>📋 后台管理 · 订单记录</span>
+                    <div class="admin-buttons">
+                        <button id="adminUnlockBtn" class="danger">🔓 解除ID锁定</button>
+                        <button id="clearOrders">🗑️ 清空所有订单</button>
+                    </div>
+                </div>
+                <div class="announcement-area">
+                    <div class="announce-row">
+                        <label for="announceInput">📢 公告：</label>
+                        <input type="text" id="announceInput" placeholder="输入公告内容，留空则清除公告" maxlength="200">
+                        <button id="publishAnnounceBtn">发布公告</button>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <span>当前公告：</span>
+                        <span id="currentAnnounceDisplay" class="current-announce">（无）</span>
+                    </div>
+                </div>
+                <div id="orderListContainer" class="order-list">
+                    <div class="no-orders">暂无订单</div>
+                </div>
+                <div class="import-export-area">
+                    <button id="exportOrdersBtn">📤 导出订单</button>
+                    <button id="importOrdersBtn">📥 导入订单</button>
+                    <textarea id="importExportText" placeholder="粘贴导出的JSON数据..."></textarea>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button id="logoutBtn" style="background:#95a5a6; color:white; border:none; padding:6px 20px; border-radius:30px; cursor:pointer;">🚪 退出后台</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== 模态框 ==========
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalButtons = document.getElementById('modalButtons');
+
+    function showModal(message, buttonConfigs) {
+        return new Promise((resolve) => {
+            modalMessage.textContent = message;
+            modalButtons.innerHTML = '';
+            buttonConfigs.forEach(cfg => {
+                const btn = document.createElement('button');
+                btn.textContent = cfg.label;
+                if (cfg.className) btn.className = cfg.className;
+                btn.addEventListener('click', () => {
+                    modalOverlay.style.display = 'none';
+                    resolve(cfg.value);
+                });
+                modalButtons.appendChild(btn);
+            });
+            modalOverlay.style.display = 'flex';
+            const firstBtn = modalButtons.querySelector('button');
+            if (firstBtn) firstBtn.focus();
+        });
+    }
+
+    function myAlert(message) {
+        return showModal(message, [
+            { label: '确定', value: true, className: 'btn-ok' }
+        ]);
+    }
+
+    function myConfirm(message) {
+        return showModal(message, [
+            { label: '取消', value: false, className: 'btn-cancel' },
+            { label: '确定', value: true, className: 'btn-confirm' }
+        ]);
+    }
+
+    // ========== 存储 ==========
+    const STORAGE_KEY = 'mc_orders';
+    const ANNOUNCE_KEY = 'mc_announcement';
+    let memoryOrders = [];
+    let storageAvailable = true;
+
+    function testStorage() {
+        try {
+            localStorage.setItem('__test', '1');
+            localStorage.removeItem('__test');
+            return true;
+        } catch (e) { return false; }
+    }
+
+    function readOrders() {
+        try {
+            if (!storageAvailable) return memoryOrders;
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data === null) return [];
+            const parsed = JSON.parse(data);
+            if (!Array.isArray(parsed)) throw new Error('数据格式错误');
+            return parsed;
+        } catch (e) {
+            console.error('读取订单失败:', e);
+            return memoryOrders.length > 0 ? memoryOrders : [];
+        }
+    }
+
+    function writeOrders(orders) {
+        try {
+            if (!Array.isArray(orders)) throw new Error('数据不是数组');
+            if (!storageAvailable) {
+                memoryOrders = orders.slice();
+                console.warn('写入内存存储');
+                return true;
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+            const verify = localStorage.getItem(STORAGE_KEY);
+            if (verify === null) throw new Error('写入后读取为空');
+            JSON.parse(verify);
+            memoryOrders = orders.slice();
+            return true;
+        } catch (e) {
+            console.error('写入订单失败:', e);
+            memoryOrders = orders.slice();
+            storageAvailable = false;
+            document.getElementById('storageWarning').style.display = 'block';
+            myAlert('⚠️ 本地存储写入失败，已切换到内存存储，数据将在刷新后丢失。建议立即导出备份。');
+            return true;
+        }
+    }
+
+    function getAnnouncement() {
+        try { return localStorage.getItem(ANNOUNCE_KEY) || ''; } catch { return ''; }
+    }
+    function setAnnouncement(text) {
+        try { localStorage.setItem(ANNOUNCE_KEY, text); } catch (e) { console.error('公告保存失败:', e); }
+    }
+
+    storageAvailable = testStorage();
+    if (!storageAvailable) {
+        document.getElementById('storageWarning').style.display = 'block';
+    }
+
+    // ========== 购物车状态 ==========
+    let cart = [];
+    let idLocked = false;
+    let lockedPlayerId = '';
+
+    function getOrders() { return readOrders(); }
+    function saveOrders(orders) { return writeOrders(orders); }
+
+    // ========== 冷却 ==========
+    let cooldownTimer = null;
+    const cooldownSeconds = 30;
+
+    function startCooldown() {
+        const btn = submitBtn;
+        if (cooldownTimer) return;
+        let remaining = cooldownSeconds;
+        btn.disabled = true;
+        btn.innerHTML = `⏳ ${remaining}s`;
+        cooldownTimer = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(cooldownTimer);
+                cooldownTimer = null;
+                btn.disabled = false;
+                btn.innerHTML = '📝 提交订单';
+                updateSubmitButtonStyle();
+            } else {
+                btn.innerHTML = `⏳ ${remaining}s`;
+            }
+        }, 1000);
+    }
+
+    // ========== DOM 引用 ==========
+    const frontPage = document.getElementById('frontPage');
+    const backPage = document.getElementById('backPage');
+    const switchBtn = document.getElementById('switchModeBtn');
+
+    const container = document.getElementById('categoriesContainer');
+    const cartContent = document.getElementById('cartContent');
+    const cartTotal = document.getElementById('cartTotal');
+    const totalQuantitySpan = document.getElementById('totalQuantity');
+    const totalPriceSpan = document.getElementById('totalPrice');
+    const itemCountSpan = document.getElementById('itemCount');
+    const playerIdInput = document.getElementById('playerId');
+    const confirmIdBtn = document.getElementById('confirmIdBtn');
+    const idLockStatus = document.getElementById('idLockStatus');
+    const submitBtn = document.getElementById('submitOrder');
+
+    const loginArea = document.getElementById('loginArea');
+    const adminContent = document.getElementById('adminContent');
+    const passwordInput = document.getElementById('adminPassword');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+    const orderListContainer = document.getElementById('orderListContainer');
+    const clearBtn = document.getElementById('clearOrders');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminUnlockBtn = document.getElementById('adminUnlockBtn');
+    const exportBtn = document.getElementById('exportOrdersBtn');
+    const importBtn = document.getElementById('importOrdersBtn');
+    const importExportText = document.getElementById('importExportText');
+
+    const announceInput = document.getElementById('announceInput');
+    const publishAnnounceBtn = document.getElementById('publishAnnounceBtn');
+    const currentAnnounceDisplay = document.getElementById('currentAnnounceDisplay');
+    const announcementBanner = document.getElementById('announcementBanner');
+
+    const ADMIN_PASSWORD = 'admin123';
+
+    // ========== ID 锁定 ==========
+    function validateId(id) {
+        return /^[\u4e00-\u9fa5A-Za-z0-9_]{1,10}$/.test(id);
+    }
+
+    async function lockId() {
+        const id = playerIdInput.value.trim();
+        if (!validateId(id)) {
+            await myAlert('❌ 游戏ID必须为 1~10 位中文、字母、数字或下划线，请重新输入。');
+            playerIdInput.focus();
+            return;
+        }
+        idLocked = true;
+        lockedPlayerId = id;
+        playerIdInput.disabled = true;
+        playerIdInput.style.backgroundColor = '#e9ecef';
+        confirmIdBtn.disabled = true;
+        confirmIdBtn.textContent = '已锁定';
+        idLockStatus.style.display = 'inline';
+        updateSubmitButtonStyle();
+    }
+
+    async function adminUnlockId() {
+        if (!idLocked) {
+            await myAlert('当前ID未被锁定，无需解除。');
+            return;
+        }
+        if (cart.length > 0) {
+            const confirm = await myConfirm('解除ID锁定将清空购物车，确定继续吗？');
+            if (!confirm) return;
+            cart = [];
+            updateCartUI();
+        } else {
+            const confirm = await myConfirm('确定要解除当前ID锁定吗？');
+            if (!confirm) return;
+        }
+        idLocked = false;
+        lockedPlayerId = '';
+        playerIdInput.disabled = false;
+        playerIdInput.style.backgroundColor = 'white';
+        playerIdInput.value = '';
+        confirmIdBtn.disabled = false;
+        confirmIdBtn.textContent = '确认ID';
+        idLockStatus.style.display = 'none';
+        updateSubmitButtonStyle();
+        updateCartUI();
+        await myAlert('✅ ID已解除锁定，玩家可重新输入ID并锁定。');
+    }
+
+    function updateSubmitButtonStyle() {
+        if (cooldownTimer) return;
+        submitBtn.disabled = !(idLocked && cart.length > 0);
+    }
+
+    // ========== 公告 ==========
+    function updateAnnouncementDisplay() {
+        const text = getAnnouncement();
+        currentAnnounceDisplay.textContent = text || '（无）';
+        if (text.trim()) {
+            announcementBanner.textContent = '📢 ' + text;
+            announcementBanner.style.display = 'block';
+        } else {
+            announcementBanner.style.display = 'none';
+        }
+    }
+
+    async function publishAnnouncement() {
+        const text = announceInput.value.trim();
+        setAnnouncement(text);
+        announceInput.value = '';
+        updateAnnouncementDisplay();
+        await myAlert(text ? '✅ 公告已发布！' : '✅ 公告已清除。');
+    }
+
+    // ========== 商品数据 ==========
+    const products = [
+        { category: '矿石类', name: '煤炭', price: 30, unit: '个' },
+        { category: '矿石类', name: '铜锭', price: 60, unit: '个' },
+        { category: '矿石类', name: '铁锭', price: 120, unit: '个' },
+        { category: '矿石类', name: '金锭', price: 160, unit: '个' },
+        { category: '矿石类', name: '煤炭（深层）', price: 1200, unit: '个' },
+        { category: '矿石类', name: '钻石', price: 1550, unit: '个' },
+        { category: '矿石类', name: '钻石矿', price: 1600, unit: '个' },
+        { category: '矿石类', name: '下界合金锭', price: 2500, unit: '个' },
+        { category: '矿石类', name: '下界合金原矿', price: 2500, unit: '个' },
+        { category: '红石类', name: '红石粉', price: 64, unit: '组' },
+        { category: '红石类', name: '红石火把', price: 65, unit: '组' },
+        { category: '红石类', name: '红石块', price: 576, unit: '组' },
+        { category: '红石类', name: '活塞', price: 576, unit: '组' },
+        { category: '红石类', name: '黏性活塞', price: 576, unit: '组' },
+        { category: '红石类', name: '发射器', price: 325, unit: '组' },
+        { category: '红石类', name: '投掷器', price: 325, unit: '组' },
+        { category: '红石类', name: '绊线钩', price: 50, unit: '组' },
+        { category: '红石类', name: '铁轨', price: 20, unit: '组' },
+        { category: '红石类', name: '动力铁轨', price: 25, unit: '组' },
+        { category: '红石类', name: '激活铁轨', price: 60, unit: '组' },
+        { category: '红石类', name: '矿车', price: 30, unit: '组' },
+        { category: '红石类', name: '箱子矿车', price: 30, unit: '组' },
+        { category: '红石类', name: '漏斗矿车', price: 60, unit: '组' },
+        { category: '红石类', name: '侦测器', price: 80, unit: '组' },
+        { category: '红石类', name: '阳光传感器', price: 90, unit: '组' },
+        { category: '红石类', name: '钟', price: 90, unit: '组' },
+        { category: '红石类', name: '中继器', price: 20, unit: '组' },
+        { category: '红石类', name: '比较器', price: 20, unit: '组' },
+        { category: '红石类', name: '铜灯', price: 60, unit: '组' },
+        { category: '红石类', name: '讲台', price: 200, unit: '组' },
+        { category: '红石类', name: '幽匿侦测器', price: 1000, unit: '组' },
+        { category: '红石类', name: '红石灯', price: 200, unit: '组' },
+        { category: '红石类', name: '黏液块', price: 100, unit: '组' },
+        { category: '建筑补充', name: '铜块 (斑驳-无锈)', price: 10, unit: '组', note: '最低价' },
+        { category: '建筑补充', name: '铜格栅', price: 12, unit: '组', note: '最低价' },
+        { category: '建筑补充', name: '避雷针 (斑驳-无锈)', price: 10, unit: '组', note: '最低价' },
+        { category: '建筑补充', name: '铜傀儡 (斑驳-无锈)', price: 10, unit: '组', note: '最低价' },
+        { category: '烹饪类', name: '包子', price: 2, unit: '份' },
+        { category: '烹饪类', name: '米线 (品质最低)', price: 10, unit: '份' },
+        { category: '烹饪类', name: '其他 (品质最低)', price: 10, unit: '份' },
+    ];
+
+    // ========== 渲染商品 ==========
+    function renderProducts() {
+        const groups = {};
+        products.forEach((p, idx) => {
+            if (!groups[p.category]) groups[p.category] = [];
+            groups[p.category].push({ ...p, index: idx });
+        });
+        let html = '';
+        for (const [cat, items] of Object.entries(groups)) {
+            html += `<div class="category"><div class="category-title">${cat} <small>单价为出售价</small></div><div class="item-grid">`;
+            items.forEach(item => {
+                const priceDisplay = item.note ? `${item.price} (${item.note})` : item.price;
+                html += `
+                    <div class="item-card">
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">${priceDisplay} <span class="unit">/ ${item.unit}</span></div>
+                        </div>
+                        <div class="item-control">
+                            <input type="number" id="qty_${item.index}" value="1" min="1" step="1">
+                            <button class="btn-add" data-index="${item.index}">加入</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+        }
+        container.innerHTML = html;
+
+        document.querySelectorAll('.btn-add').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if (!idLocked) {
+                    await myAlert('⚠️ 请先确认并锁定游戏ID！');
+                    return;
+                }
+                const idx = parseInt(this.dataset.index);
+                const qtyInput = document.getElementById(`qty_${idx}`);
+                let qty = parseInt(qtyInput.value) || 1;
+                if (qty < 1) qty = 1;
+                addToCart(idx, qty);
+                qtyInput.value = 1;
+            });
+        });
+    }
+
+    // ========== 购物车操作 ==========
+    function addToCart(productIndex, quantity) {
+        const product = products[productIndex];
+        if (!product) return;
+        const existing = cart.find(item => item.productIndex === productIndex);
+        if (existing) {
+            existing.quantity += quantity;
+        } else {
+            cart.push({
+                id: Date.now() + Math.random(),
+                productIndex: productIndex,
+                name: product.name,
+                price: product.price,
+                unit: product.unit,
+                quantity: quantity
+            });
+        }
+        updateCartUI();
+    }
+
+    function removeFromCart(id) {
+        cart = cart.filter(item => item.id !== id);
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        if (cart.length === 0) {
+            cartContent.innerHTML = `<div class="empty-cart">购物车是空的，快去选购吧！</div>`;
+            cartTotal.style.display = 'none';
+            itemCountSpan.textContent = '0';
+        } else {
+            let totalQty = 0, totalPrice = 0, rows = '';
+            cart.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                totalQty += item.quantity;
+                totalPrice += subtotal;
+                rows += `
+                    <tr>
+                        <td class="cart-item-name">${item.name}</td>
+                        <td>${item.price} <span style="font-size:0.75rem;color:#6c757d;">/ ${item.unit}</span></td>
+                        <td>${item.quantity} ${item.unit}</td>
+                        <td>${subtotal}</td>
+                        <td><button class="btn-remove" data-id="${item.id}">移除</button></td>
+                    </tr>
+                `;
+            });
+            cartContent.innerHTML = `
+                <div class="cart-table-wrap">
+                    <table>
+                        <thead><tr><th>物品</th><th>单价</th><th>数量</th><th>小计</th><th>操作</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+            document.querySelectorAll('.btn-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseFloat(this.dataset.id);
+                    removeFromCart(id);
+                });
+            });
+            cartTotal.style.display = 'flex';
+            totalQuantitySpan.textContent = totalQty;
+            totalPriceSpan.textContent = totalPrice;
+            itemCountSpan.textContent = cart.length;
+        }
+        updateSubmitButtonStyle();
+    }
+
+    // ========== 提交订单 ==========
+    async function submitOrder() {
+        if (!idLocked) {
+            await myAlert('⚠️ 请先确认并锁定游戏ID！');
+            return;
+        }
+        if (cart.length === 0) {
+            await myAlert('⚠️ 购物车是空的，请先添加商品！');
+            return;
+        }
+        if (!lockedPlayerId || lockedPlayerId.trim() === '') {
+            await myAlert('⚠️ 游戏ID数据异常，请重新锁定ID。');
+            return;
+        }
+
+        const playerId = lockedPlayerId;
+        const items = cart.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            unit: item.unit      // 存储单位
+        }));
+        const totalQty = cart.reduce((sum, i) => sum + i.quantity, 0);
+        const totalPrice = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+        const order = {
+            id: Date.now(),
+            playerId: playerId,
+            items: items,
+            totalQty: totalQty,
+            totalPrice: totalPrice,
+            timestamp: new Date().toLocaleString(),
+            completed: false
+        };
+
+        const orders = getOrders();
+        orders.push(order);
+        const success = saveOrders(orders);
+        if (!success) {
+            await myAlert('❌ 订单保存失败，请检查浏览器存储是否可用！');
+            return;
+        }
+        const verifyOrders = getOrders();
+        const found = verifyOrders.some(o => o.id === order.id);
+        if (!found) {
+            await myAlert('❌ 订单保存验证失败，请重试！');
+            return;
+        }
+
+        cart = [];
+        updateCartUI();
+        // 提示中显示带单位的数量
+        const itemSummary = items.map(i => `${i.name}×${i.quantity}${i.unit}`).join('、');
+        await myAlert(`✅ 订单已提交！\n玩家：${playerId}\n物品：${itemSummary}\n总数量：${totalQty}\n总价：${totalPrice}`);
+        if (adminContent.style.display === 'block') {
+            renderOrders();
+        }
+        startCooldown();
+    }
+
+    // ========== 标记完成 ==========
+    async function completeOrder(orderId) {
+        const confirm = await myConfirm('确认将该订单标记为“已完成”吗？');
+        if (!confirm) return;
+        let orders = getOrders();
+        const order = orders.find(o => o.id === orderId);
+        if (!order) { await myAlert('订单不存在。'); return; }
+        if (order.completed) { await myAlert('该订单已完成。'); return; }
+        order.completed = true;
+        const success = saveOrders(orders);
+        if (!success) {
+            await myAlert('操作失败，请检查存储。');
+            return;
+        }
+        renderOrders();
+        if (idLocked && order.playerId === lockedPlayerId) {
+            const summary = order.items.map(i => `${i.name}×${i.quantity}${i.unit}`).join('、');
+            await myAlert(`📢 您的订单（${summary}）已由管理员确认完成。`);
+        }
+    }
+
+    // ========== 删除订单（已完成不提醒） ==========
+    async function deleteOrder(orderId) {
+        const confirm = await myConfirm('确定要删除该订单吗？此操作不可撤销。');
+        if (!confirm) return;
+        let orders = getOrders();
+        const removed = orders.find(o => o.id === orderId);
+        orders = orders.filter(o => o.id !== orderId);
+        const success = saveOrders(orders);
+        if (!success) {
+            await myAlert('删除失败，请检查存储。');
+            return;
+        }
+        renderOrders();
+        if (removed && !removed.completed && idLocked && removed.playerId === lockedPlayerId) {
+            const summary = removed.items.map(i => `${i.name}×${i.quantity}${i.unit}`).join('、');
+            await myAlert(`📢 管理员已取消您的订单（${summary}）。`);
+        }
+    }
+
+    // ========== 渲染订单 ==========
+    function renderOrders() {
+        const orders = getOrders();
+        if (orders.length === 0) {
+            orderListContainer.innerHTML = `<div class="no-orders">暂无订单</div>`;
+            return;
+        }
+        let html = '';
+        for (let i = orders.length - 1; i >= 0; i--) {
+            const order = orders[i];
+            const itemsStr = order.items.map(item => `${item.name}×${item.quantity}${item.unit}`).join('、');
+            const statusText = order.completed ? '✅ 已完成' : '⏳ 待处理';
+            const statusClass = order.completed ? 'completed' : 'pending';
+            html += `
+                <div class="order-item">
+                    <div class="order-info">
+                        <div class="order-header">
+                            <span>🎮 ${order.playerId}</span>
+                            <span>💰 总价：${order.totalPrice} &nbsp;|&nbsp; 📦 ${order.totalQty} 件</span>
+                            <span class="order-time">🕒 ${order.timestamp}</span>
+                            <span class="order-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="order-details">${itemsStr}</div>
+                    </div>
+                    <div class="order-actions">
+                        ${!order.completed ? `<button class="btn-complete" data-id="${order.id}">✅ 完成</button>` : ''}
+                        <button class="btn-delete" data-id="${order.id}">🗑️ 删除</button>
+                    </div>
+                </div>
+            `;
+        }
+        orderListContainer.innerHTML = html;
+        document.querySelectorAll('.btn-complete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                completeOrder(parseInt(this.dataset.id));
+            });
+        });
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                deleteOrder(parseInt(this.dataset.id));
+            });
+        });
+    }
+
+    // ========== 导出/导入 ==========
+    function exportOrders() {
+        const orders = getOrders();
+        importExportText.value = JSON.stringify(orders, null, 2);
+        myAlert('订单数据已导出到下方文本框，请复制保存。');
+    }
+
+    async function importOrders() {
+        const text = importExportText.value.trim();
+        if (!text) { await myAlert('请先粘贴要导入的 JSON 数据。'); return; }
+        try {
+            const data = JSON.parse(text);
+            if (!Array.isArray(data)) throw new Error('数据不是数组');
+            if (data.length > 0 && (!data[0].id || !data[0].playerId || !data[0].items)) {
+                throw new Error('数据格式不正确，缺少必要字段');
+            }
+            const confirm = await myConfirm(`即将导入 ${data.length} 条订单，这将覆盖当前所有订单，确认继续？`);
+            if (!confirm) return;
+            const success = saveOrders(data);
+            if (success) {
+                await myAlert('导入成功！');
+                renderOrders();
+                importExportText.value = '';
+            } else {
+                await myAlert('导入失败，请检查存储状态。');
+            }
+        } catch (e) {
+            await myAlert('导入失败：' + e.message);
+        }
+    }
+
+    // ========== 登录/登出 ==========
+    async function login() {
+        const pwd = passwordInput.value;
+        if (pwd === ADMIN_PASSWORD) {
+            loginArea.style.display = 'none';
+            adminContent.style.display = 'block';
+            renderOrders();
+            updateAnnouncementDisplay();
+            loginError.textContent = '';
+            passwordInput.value = '';
+            switchBtn.textContent = '🏠 返回前台';
+        } else {
+            loginError.textContent = '❌ 密码错误，请重试';
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+    }
+
+    function logout() {
+        loginArea.style.display = 'block';
+        adminContent.style.display = 'none';
+        loginError.textContent = '';
+        switchBtn.textContent = '🔐 后台管理';
+        showFront();
+    }
+
+    // ========== 页面切换 ==========
+    function showFront() {
+        frontPage.style.display = 'block';
+        backPage.style.display = 'none';
+        switchBtn.textContent = '🔐 后台管理';
+        updateAnnouncementDisplay();
+    }
+
+    function showBack() {
+        frontPage.style.display = 'none';
+        backPage.style.display = 'block';
+        if (adminContent.style.display === 'block') {
+            renderOrders();
+            updateAnnouncementDisplay();
+        } else {
+            loginArea.style.display = 'block';
+            adminContent.style.display = 'none';
+            passwordInput.value = '';
+            loginError.textContent = '';
+        }
+        switchBtn.textContent = '🏠 返回前台';
+    }
+
+    // ========== 事件绑定 ==========
+    switchBtn.addEventListener('click', function() {
+        if (frontPage.style.display !== 'none') showBack();
+        else showFront();
+    });
+
+    confirmIdBtn.addEventListener('click', lockId);
+    playerIdInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); if (!idLocked) lockId(); }
+    });
+
+    loginBtn.addEventListener('click', login);
+    passwordInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') login();
+    });
+
+    logoutBtn.addEventListener('click', logout);
+    submitBtn.addEventListener('click', submitOrder);
+
+    clearBtn.addEventListener('click', async function() {
+        const confirm = await myConfirm('确定要清空所有订单记录吗？');
+        if (confirm) {
+            const oldOrders = getOrders();
+            if (saveOrders([])) {
+                renderOrders();
+                await myAlert('已清空所有订单。');
+                if (idLocked && oldOrders.some(o => o.playerId === lockedPlayerId)) {
+                    await myAlert('📢 管理员已清空所有订单，您的订单可能已被取消。');
+                }
+            } else {
+                await myAlert('清空失败，请检查存储。');
+            }
+        }
+    });
+
+    adminUnlockBtn.addEventListener('click', adminUnlockId);
+    exportBtn.addEventListener('click', exportOrders);
+    importBtn.addEventListener('click', importOrders);
+    publishAnnounceBtn.addEventListener('click', publishAnnouncement);
+    announceInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); publishAnnouncement(); }
+    });
+
+    // ========== 启动 ==========
+    renderProducts();
+    updateCartUI();
+    showFront();
+    submitBtn.disabled = true;
+    updateAnnouncementDisplay();
+    console.log('系统已启动，存储可用:', storageAvailable);
+</script>
+</body>
+</html>
